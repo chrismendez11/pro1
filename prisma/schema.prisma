@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Branch {
+  branchId        String          @id @default(uuid()) @db.Char(36)
+  branchName      String          @db.VarChar(255)
+  branchAddress   String          @db.VarChar(255)
+  companyId       String          @db.Char(36)
+  countryId       String          @db.Char(36)
+  branchCreatedAt DateTime        @default(dbgenerated("(now())")) @db.DateTime(6)
+  branchUpdatedAt DateTime        @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  Company         Company         @relation(fields: [companyId], references: [companyId], onDelete: NoAction, onUpdate: NoAction, map: "branch_ibfk_1")
+  Country         Country         @relation(fields: [countryId], references: [countryId], onDelete: NoAction, onUpdate: NoAction, map: "branch_ibfk_2")
+  BranchClosure   BranchClosure[]
+  BranchHour      BranchHour[]
+  Court           Court[]
+
+  @@index([companyId], map: "companyId")
+  @@index([countryId], map: "countryId")
+}
+
+model BranchClosure {
+  branchClosureId          String    @id @default(uuid()) @db.Char(36)
+  branchId                 String    @db.Char(36)
+  branchClosureDate        DateTime  @db.Date
+  branchClosureIsFullDay   Boolean   @default(true)
+  branchClosureOpeningTime DateTime? @db.Time(0)
+  branchClosureClosingTime DateTime? @db.Time(0)
+  branchClosureReason      String?   @db.VarChar(255)
+  branchClosureCreatedAt   DateTime  @default(dbgenerated("(now())")) @db.DateTime(6)
+  branchClosureUpdatedAt   DateTime  @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  Branch                   Branch    @relation(fields: [branchId], references: [branchId], onDelete: NoAction, onUpdate: NoAction, map: "branchclosure_ibfk_1")
+
+  @@unique([branchId, branchClosureDate], map: "BranchClosure_index_1")
+}
+
+model BranchHour {
+  branchHourId          String   @id @default(uuid()) @db.Char(36)
+  branchId              String   @db.Char(36)
+  branchHourDayOfWeek   Int      @db.TinyInt
+  branchHourOpeningTime DateTime @db.Time(0)
+  branchHourClosingTime DateTime @db.Time(0)
+  branchHourCreatedAt   DateTime @default(dbgenerated("(now())")) @db.DateTime(6)
+  branchHourUpdatedAt   DateTime @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  Branch                Branch   @relation(fields: [branchId], references: [branchId], onDelete: NoAction, onUpdate: NoAction, map: "branchhour_ibfk_1")
+
+  @@unique([branchId, branchHourDayOfWeek], map: "BranchHour_index_0")
+}
+
+model Company {
+  companyId           String          @id @default(uuid()) @db.Char(36)
+  companyName         String          @unique(map: "companyName") @db.VarChar(255)
+  companyEmail        String?         @unique(map: "companyEmail") @db.VarChar(255)
+  companyContactPhone String?         @db.VarChar(255)
+  companyCreatedAt    DateTime        @default(dbgenerated("(now())")) @db.DateTime(6)
+  companyUpdatedAt    DateTime        @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  Branch              Branch[]
+  CompanySetting      CompanySetting?
+  User                User[]
+}
+
+model CompanySetting {
+  companySettingId         String   @id @db.Char(36)
+  companySettingCurrencyId String   @db.Char(36)
+  Company                  Company  @relation(fields: [companySettingId], references: [companyId], onDelete: NoAction, onUpdate: NoAction, map: "companysetting_ibfk_1")
+  Currency                 Currency @relation(fields: [companySettingCurrencyId], references: [currencyId], onDelete: NoAction, onUpdate: NoAction, map: "companysetting_ibfk_2")
+
+  @@index([companySettingCurrencyId], map: "companySettingCurrencyId")
+}
+
+model Country {
+  countryId   String   @id @db.Char(36)
+  countryName String   @unique(map: "countryName") @db.VarChar(255)
+  Branch      Branch[]
+}
+
+model Court {
+  courtId          String         @id @default(uuid()) @db.Char(36)
+  courtName        String?        @db.VarChar(255)
+  sportCourtTypeId String         @db.Char(36)
+  courtStatusId    String         @db.Char(36)
+  branchId         String         @db.Char(36)
+  courtCreatedAt   DateTime       @default(dbgenerated("(now())")) @db.DateTime(6)
+  courtUpdatedAt   DateTime       @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  SportCourtType   SportCourtType @relation(fields: [sportCourtTypeId], references: [sportCourtTypeId], onDelete: NoAction, onUpdate: NoAction, map: "court_ibfk_1")
+  CourtStatus      CourtStatus    @relation(fields: [courtStatusId], references: [courtStatusId], onDelete: NoAction, onUpdate: NoAction, map: "court_ibfk_2")
+  Branch           Branch         @relation(fields: [branchId], references: [branchId], onDelete: NoAction, onUpdate: NoAction, map: "court_ibfk_3")
+  CourtPricing     CourtPricing[]
+  Reservation      Reservation[]
+
+  @@index([branchId], map: "branchId")
+  @@index([courtStatusId], map: "courtStatusId")
+  @@index([sportCourtTypeId], map: "court_ibfk_1")
+}
+
+model CourtPricing {
+  courtPricingId        String   @id @default(uuid()) @db.Char(36)
+  courtId               String   @db.Char(36)
+  courtPricingDayOfWeek Int      @db.TinyInt
+  courtPricingStartTime DateTime @db.Time(0)
+  courtPricingEndTime   DateTime @db.Time(0)
+  courtPricingPerHour   Decimal  @db.Decimal(7, 2)
+  courtPricingCreatedAt DateTime @default(dbgenerated("(now())")) @db.DateTime(6)
+  courtPricingUpdatedAt DateTime @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  Court                 Court    @relation(fields: [courtId], references: [courtId], onDelete: NoAction, onUpdate: NoAction, map: "courtpricing_ibfk_1")
+
+  @@unique([courtId, courtPricingDayOfWeek, courtPricingStartTime], map: "CourtPricing_index_2")
+  @@unique([courtId, courtPricingDayOfWeek, courtPricingEndTime], map: "CourtPricing_index_3")
+}
+
+model CourtStatus {
+  courtStatusId   String  @id @db.Char(36)
+  courtStatusName String  @unique(map: "courtStatusName") @db.VarChar(255)
+  Court           Court[]
+}
+
+model Currency {
+  currencyId     String           @id @db.Char(36)
+  currencyISO    String           @unique(map: "currencyISO") @db.Char(3)
+  currencySymbol String           @db.Char(1)
+  currencyName   String           @db.VarChar(255)
+  CompanySetting CompanySetting[]
+}
+
+model Reservation {
+  reservationId           String            @id @default(uuid()) @db.Char(36)
+  reservationHolderName   String            @db.VarChar(255)
+  reservationContactPhone String?           @db.VarChar(255)
+  reservationEmail        String?           @db.VarChar(255)
+  courtId                 String            @db.Char(36)
+  reservationDate         DateTime          @db.Date
+  reservationStartTime    DateTime          @db.Time(0)
+  reservarionEndTime      DateTime          @db.Time(0)
+  reservationTotalPrice   Decimal           @db.Decimal(7, 2)
+  reservationNote         String?           @db.VarChar(255)
+  reservationStatusId     String            @db.Char(36)
+  reservationCreatedAt    DateTime          @default(dbgenerated("(now())")) @db.DateTime(6)
+  reservationtUpdatedAt   DateTime          @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  Court                   Court             @relation(fields: [courtId], references: [courtId], onDelete: NoAction, onUpdate: NoAction, map: "reservation_ibfk_1")
+  ReservationStatus       ReservationStatus @relation(fields: [reservationStatusId], references: [reservationStatusId], onDelete: NoAction, onUpdate: NoAction, map: "reservation_ibfk_2")
+
+  @@index([courtId], map: "courtId")
+  @@index([reservationStatusId], map: "reservationStatusId")
+}
+
+model ReservationStatus {
+  reservationStatusId   String        @id @db.Char(36)
+  reservationStatusName String        @unique(map: "reservationStatusName") @db.VarChar(255)
+  Reservation           Reservation[]
+}
+
+model SportCategory {
+  sportCategoryId   String           @id @db.Char(36)
+  sportCategoryName String           @unique(map: "sportCategoryName") @db.VarChar(255)
+  SportCourtType    SportCourtType[]
+}
+
+model SportCourtType {
+  sportCourtTypeId   String        @id @db.Char(36)
+  sportCourtTypeName String        @unique(map: "sportCourtTypeName") @db.VarChar(255)
+  sportCategoryId    String        @db.Char(36)
+  Court              Court[]
+  SportCategory      SportCategory @relation(fields: [sportCategoryId], references: [sportCategoryId], onDelete: NoAction, onUpdate: NoAction, map: "sportcourttype_ibfk_1")
+
+  @@index([sportCategoryId], map: "sportCategoryId")
+}
+
+model User {
+  userId        String   @id @default(uuid()) @db.Char(36)
+  userName      String   @db.VarChar(255)
+  userEmail     String   @unique(map: "userEmail") @db.VarChar(255)
+  userPassword  String   @db.VarChar(255)
+  companyId     String   @db.Char(36)
+  userCreatedAt DateTime @default(dbgenerated("(now())")) @db.DateTime(6)
+  userUpdatedAt DateTime @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  Company       Company  @relation(fields: [companyId], references: [companyId], onDelete: NoAction, onUpdate: NoAction, map: "user_ibfk_1")
+
+  @@index([companyId], map: "companyId")
+}
