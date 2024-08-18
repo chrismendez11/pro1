@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Branch {
@@ -14,7 +15,7 @@ model Branch {
   companyId       String          @db.Char(36)
   countryId       String          @db.Char(36)
   branchCreatedAt DateTime        @default(dbgenerated("(now())")) @db.DateTime(6)
-  branchUpdatedAt DateTime        @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  branchUpdatedAt DateTime        @default(dbgenerated("(now())")) @updatedAt @db.DateTime(6)
   Company         Company         @relation(fields: [companyId], references: [companyId], onDelete: NoAction, onUpdate: NoAction, map: "branch_ibfk_1")
   Country         Country         @relation(fields: [countryId], references: [countryId], onDelete: NoAction, onUpdate: NoAction, map: "branch_ibfk_2")
   BranchClosure   BranchClosure[]
@@ -34,7 +35,7 @@ model BranchClosure {
   branchClosureClosingTime DateTime? @db.Time(0)
   branchClosureReason      String?   @db.VarChar(255)
   branchClosureCreatedAt   DateTime  @default(dbgenerated("(now())")) @db.DateTime(6)
-  branchClosureUpdatedAt   DateTime  @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  branchClosureUpdatedAt   DateTime  @default(dbgenerated("(now())")) @updatedAt @db.DateTime(6)
   Branch                   Branch    @relation(fields: [branchId], references: [branchId], onDelete: NoAction, onUpdate: NoAction, map: "branchclosure_ibfk_1")
 
   @@unique([branchId, branchClosureDate], map: "BranchClosure_index_1")
@@ -47,7 +48,7 @@ model BranchHour {
   branchHourOpeningTime DateTime @db.Time(0)
   branchHourClosingTime DateTime @db.Time(0)
   branchHourCreatedAt   DateTime @default(dbgenerated("(now())")) @db.DateTime(6)
-  branchHourUpdatedAt   DateTime @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  branchHourUpdatedAt   DateTime @default(dbgenerated("(now())")) @updatedAt @db.DateTime(6)
   Branch                Branch   @relation(fields: [branchId], references: [branchId], onDelete: NoAction, onUpdate: NoAction, map: "branchhour_ibfk_1")
 
   @@unique([branchId, branchHourDayOfWeek], map: "BranchHour_index_0")
@@ -59,7 +60,7 @@ model Company {
   companyEmail        String?         @unique(map: "companyEmail") @db.VarChar(255)
   companyContactPhone String?         @db.VarChar(255)
   companyCreatedAt    DateTime        @default(dbgenerated("(now())")) @db.DateTime(6)
-  companyUpdatedAt    DateTime        @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  companyUpdatedAt    DateTime        @default(dbgenerated("(now())")) @updatedAt @db.DateTime(6)
   Branch              Branch[]
   CompanySetting      CompanySetting?
   User                User[]
@@ -87,7 +88,7 @@ model Court {
   courtStatusId    String         @db.Char(36)
   branchId         String         @db.Char(36)
   courtCreatedAt   DateTime       @default(dbgenerated("(now())")) @db.DateTime(6)
-  courtUpdatedAt   DateTime       @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  courtUpdatedAt   DateTime       @default(dbgenerated("(now())")) @updatedAt @db.DateTime(6)
   SportCourtType   SportCourtType @relation(fields: [sportCourtTypeId], references: [sportCourtTypeId], onDelete: NoAction, onUpdate: NoAction, map: "court_ibfk_1")
   CourtStatus      CourtStatus    @relation(fields: [courtStatusId], references: [courtStatusId], onDelete: NoAction, onUpdate: NoAction, map: "court_ibfk_2")
   Branch           Branch         @relation(fields: [branchId], references: [branchId], onDelete: NoAction, onUpdate: NoAction, map: "court_ibfk_3")
@@ -107,7 +108,7 @@ model CourtPricing {
   courtPricingEndTime   DateTime @db.Time(0)
   courtPricingPerHour   Decimal  @db.Decimal(7, 2)
   courtPricingCreatedAt DateTime @default(dbgenerated("(now())")) @db.DateTime(6)
-  courtPricingUpdatedAt DateTime @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  courtPricingUpdatedAt DateTime @default(dbgenerated("(now())")) @updatedAt @db.DateTime(6)
   Court                 Court    @relation(fields: [courtId], references: [courtId], onDelete: NoAction, onUpdate: NoAction, map: "courtpricing_ibfk_1")
 
   @@unique([courtId, courtPricingDayOfWeek, courtPricingStartTime], map: "CourtPricing_index_2")
@@ -141,7 +142,7 @@ model Reservation {
   reservationNote         String?           @db.VarChar(255)
   reservationStatusId     String            @db.Char(36)
   reservationCreatedAt    DateTime          @default(dbgenerated("(now())")) @db.DateTime(6)
-  reservationtUpdatedAt   DateTime          @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  reservationtUpdatedAt   DateTime          @default(dbgenerated("(now())")) @updatedAt @db.DateTime(6)
   Court                   Court             @relation(fields: [courtId], references: [courtId], onDelete: NoAction, onUpdate: NoAction, map: "reservation_ibfk_1")
   ReservationStatus       ReservationStatus @relation(fields: [reservationStatusId], references: [reservationStatusId], onDelete: NoAction, onUpdate: NoAction, map: "reservation_ibfk_2")
 
@@ -177,9 +178,18 @@ model User {
   userEmail     String   @unique(map: "userEmail") @db.VarChar(255)
   userPassword  String   @db.VarChar(255)
   companyId     String   @db.Char(36)
+  roleId        String   @db.Char(36)
   userCreatedAt DateTime @default(dbgenerated("(now())")) @db.DateTime(6)
-  userUpdatedAt DateTime @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
+  userUpdatedAt DateTime @default(dbgenerated("(now())")) @updatedAt @db.DateTime(6)
   Company       Company  @relation(fields: [companyId], references: [companyId], onDelete: NoAction, onUpdate: NoAction, map: "user_ibfk_1")
+  Role          Role     @relation(fields: [roleId], references: [roleId], onDelete: NoAction, onUpdate: NoAction, map: "user_ibfk_2")
 
   @@index([companyId], map: "companyId")
+  @@index([roleId], map: "roleId")
+}
+
+model Role {
+  roleId   String @id @db.Char(36)
+  roleName String @unique(map: "roleName") @db.VarChar(255)
+  User     User[]
 }
