@@ -177,9 +177,18 @@ model User {
   userEmail     String   @unique(map: "userEmail") @db.VarChar(255)
   userPassword  String   @db.VarChar(255)
   companyId     String   @db.Char(36)
+  roleId        String   @db.Char(36)
   userCreatedAt DateTime @default(dbgenerated("(now())")) @db.DateTime(6)
   userUpdatedAt DateTime @updatedAt @default(dbgenerated("(now())")) @db.DateTime(6)
   Company       Company  @relation(fields: [companyId], references: [companyId], onDelete: NoAction, onUpdate: NoAction, map: "user_ibfk_1")
+  Role          Role     @relation(fields: [roleId], references: [roleId], onDelete: NoAction, onUpdate: NoAction, map: "user_ibfk_2")
 
   @@index([companyId], map: "companyId")
+  @@index([roleId], map: "roleId")
+}
+
+model Role {
+  roleId   String @id @db.Char(36)
+  roleName String @unique(map: "roleName") @db.VarChar(255)
+  User     User[]
 }
