@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/modules/prisma/prisma.service';
 import { CreateCompanyDto } from './dtos/create-company.dto';
+import { UpdateCompanyDto } from './dtos/update-company.dto';
 
 @Injectable()
 export class CompaniesRepository {
@@ -20,9 +21,35 @@ export class CompaniesRepository {
     });
   }
 
-  async getCompanyByName(companyName: string) {
-    return await this.prismaService.company.findFirst({
+  getCompanyByName(companyName: string) {
+    return this.prismaService.company.findFirst({
       where: { companyName },
+    });
+  }
+
+  getCompanyByEmail(companyEmail: string) {
+    return this.prismaService.company.findFirst({
+      where: { companyEmail },
+    });
+  }
+
+  async updateCompanyById(
+    companyId: string,
+    updateCompanyDto: UpdateCompanyDto,
+  ) {
+    const { companySetting, ...updateCompanyRepositoryDto } = updateCompanyDto;
+
+    return await this.prismaService.company.update({
+      where: { companyId },
+      data: {
+        ...updateCompanyRepositoryDto,
+        CompanySetting: {
+          upsert: {
+            create: companySetting,
+            update: companySetting,
+          },
+        },
+      },
     });
   }
 }

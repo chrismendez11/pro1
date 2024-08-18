@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
@@ -17,6 +17,7 @@ class CreateCompanySettingDto {
 export class CreateCompanyDto {
   @IsNotEmpty()
   @IsString()
+  @Transform(({ value }) => value.trim())
   companyName: string;
 
   @IsOptional()
