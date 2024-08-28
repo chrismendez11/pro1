@@ -21,6 +21,10 @@ export class CompaniesRepository {
     });
   }
 
+  getCompanies() {
+    return this.prismaService.company.findMany();
+  }
+
   getCompanyByName(companyName: string) {
     return this.prismaService.company.findFirst({
       where: { companyName },

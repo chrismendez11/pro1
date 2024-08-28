@@ -27,6 +27,10 @@ export class CompaniesService {
     };
   }
 
+  getCompanies() {
+    return this.companiesRepository.getCompanies();
+  }
+
   async updateCompanyById(
     companyId: string,
     updateCompanyDto: UpdateCompanyDto,
