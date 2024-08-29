@@ -5,9 +5,9 @@ import { AuthRepository } from './auth.repository';
 import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './auth.constants';
-import { LocalStrategy } from './local.strategy';
-import { JwtStrategy } from './jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
+import { LocalStrategy } from './strategies/local.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Global()
 @Module({

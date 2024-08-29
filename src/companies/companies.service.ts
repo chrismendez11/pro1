@@ -27,8 +27,8 @@ export class CompaniesService {
     };
   }
 
-  getCompanies() {
-    return this.companiesRepository.getCompanies();
+  async getCompanies() {
+    return await this.companiesRepository.getCompanies();
   }
 
   async updateCompanyById(

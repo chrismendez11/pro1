@@ -12,7 +12,6 @@ import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dtos/create-company.dto';
 import { UpdateCompanyDto } from './dtos/update-company.dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser } from 'src/shared/modules/auth/decorators/get-user.decorator';
 
 @UseGuards(AuthGuard())
 @Controller('companies')
@@ -25,8 +24,7 @@ export class CompaniesController {
   }
 
   @Get()
-  getCompanies(@GetUser() user: any) {
-    console.log(user);
+  getCompanies() {
     return this.companiesService.getCompanies();
   }
 

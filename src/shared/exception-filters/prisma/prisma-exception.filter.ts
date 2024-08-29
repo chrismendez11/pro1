@@ -3,11 +3,14 @@ import {
   Catch,
   ArgumentsHost,
   HttpStatus,
+  Inject,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { PrismaToHttpExceptionMapper } from './prisma-http-exception-mapper';
 import { HttpStatusMessagesConstants } from '../http-status-messages.constants';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 /**
  * @see https://docs.nestjs.com/exception-filters Nestjs Exception Filters
@@ -16,13 +19,22 @@ import { HttpStatusMessagesConstants } from '../http-status-messages.constants';
 
 @Catch(Prisma.PrismaClientKnownRequestError)
 export class PrismaClientKnownRequestErrorFilter implements ExceptionFilter {
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-    console.log(exception);
     const httpResponse = PrismaToHttpExceptionMapper.getHttpResponse(exception);
     const { message, statusCode, error } = httpResponse;
+    const { method, url } = request;
 
+    this.logger.error('PrismaClientKnownRequestError', {
+      method,
+      url,
+      stack: exception,
+    });
     response.status(statusCode).json({
       message,
       error,
@@ -33,14 +45,24 @@ export class PrismaClientKnownRequestErrorFilter implements ExceptionFilter {
 
 @Catch(Prisma.PrismaClientValidationError)
 export class PrismaClientValidationErrorFilter implements ExceptionFilter {
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
   catch(
-    _exception: Prisma.PrismaClientUnknownRequestError,
+    exception: Prisma.PrismaClientUnknownRequestError,
     host: ArgumentsHost,
   ) {
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
-    console.log(_exception);
+    const { method, url } = request;
+
+    this.logger.error('PrismaClientValidationError', {
+      method,
+      url,
+      stack: exception,
+    });
     response.status(status).json({
       message: HttpStatusMessagesConstants[status],
       statusCode: status,
@@ -50,14 +72,24 @@ export class PrismaClientValidationErrorFilter implements ExceptionFilter {
 
 @Catch(Prisma.PrismaClientUnknownRequestError)
 export class PrismaClientUnknownRequestErrorFilter implements ExceptionFilter {
+  constructor(
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+  ) {}
   catch(
-    _exception: Prisma.PrismaClientUnknownRequestError,
+    exception: Prisma.PrismaClientUnknownRequestError,
     host: ArgumentsHost,
   ) {
     const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
     const status = HttpStatus.INTERNAL_SERVER_ERROR;
-    console.log(_exception);
+    const { method, url } = request;
+
+    this.logger.error('PrismaClientUnknownRequestError', {
+      method,
+      url,
+      stack: exception,
+    });
     response.status(status).json({
       message: HttpStatusMessagesConstants[status],
       statusCode: status,

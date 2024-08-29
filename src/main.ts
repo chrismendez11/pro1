@@ -6,10 +6,10 @@ import {
   PrismaClientValidationErrorFilter,
 } from './shared/exception-filters/prisma/prisma-exception.filter';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = process.env.PORT || 3000;
 
   app.setGlobalPrefix('api');
 
@@ -25,11 +25,15 @@ async function bootstrap() {
     }),
   );
 
+  const logger = app.get(WINSTON_MODULE_PROVIDER);
+
   app.useGlobalFilters(
-    new PrismaClientKnownRequestErrorFilter(),
-    new PrismaClientUnknownRequestErrorFilter(),
-    new PrismaClientValidationErrorFilter(),
+    new PrismaClientKnownRequestErrorFilter(logger),
+    new PrismaClientUnknownRequestErrorFilter(logger),
+    new PrismaClientValidationErrorFilter(logger),
   );
+
+  const port = process.env.PORT || 3000;
 
   app.enableCors();
   await app.listen(port);
