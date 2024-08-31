@@ -28,6 +28,7 @@ export class UsersRepository {
         userId: true,
         userName: true,
         userEmail: true,
+        roleId: true,
         companyId: true,
       },
     });

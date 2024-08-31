@@ -7,10 +7,10 @@ import { UpdateCompanyDto } from './dtos/update-company.dto';
 export class CompaniesRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createCompany(createCompanyDto: CreateCompanyDto) {
+  createCompany(createCompanyDto: CreateCompanyDto) {
     const { companySetting, ...createCompanyRepositoryDto } = createCompanyDto;
 
-    return await this.prismaService.company.create({
+    return this.prismaService.company.create({
       data: {
         ...createCompanyRepositoryDto,
         CompanySetting: {
@@ -37,13 +37,10 @@ export class CompaniesRepository {
     });
   }
 
-  async updateCompanyById(
-    companyId: string,
-    updateCompanyDto: UpdateCompanyDto,
-  ) {
+  updateCompanyById(companyId: string, updateCompanyDto: UpdateCompanyDto) {
     const { companySetting, ...updateCompanyRepositoryDto } = updateCompanyDto;
 
-    return await this.prismaService.company.update({
+    return this.prismaService.company.update({
       where: { companyId },
       data: {
         ...updateCompanyRepositoryDto,

@@ -8,7 +8,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
 import { PrismaToHttpExceptionMapper } from './prisma-http-exception-mapper';
-import { HttpStatusMessagesConstants } from '../http-status-messages.constants';
+import { HttpStatusMessagesConstants } from '../../constants/http-status-messages.constants';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 

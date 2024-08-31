@@ -1,6 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { HttpStatusMessagesConstants } from '../http-status-messages.constants';
+import { HttpStatusMessagesConstants } from '../../constants/http-status-messages.constants';
 
 interface IHttpResponse {
   message: string;
@@ -33,7 +33,7 @@ export class PrismaToHttpExceptionMapper {
   static getHttpResponse(
     exception: Prisma.PrismaClientKnownRequestError,
   ): IHttpResponse {
-    const { code, meta } = exception;
+    const { code, meta, message: exceptionMessage } = exception;
 
     const statusCode = PrismaErrorCodesToHttpStatusCodes.getHttpStatus(code);
     let message = HttpStatusMessagesConstants[statusCode];
@@ -50,7 +50,9 @@ export class PrismaToHttpExceptionMapper {
         break;
       case PrismaErrorCodesConstants.RecordDoesNotExist:
         error = HttpStatusMessagesConstants[statusCode];
-        message = `Record '${meta.target}' does not exist`;
+        message = meta
+          ? `Record '${meta.modelName}' not found`
+          : exceptionMessage;
         break;
     }
 
