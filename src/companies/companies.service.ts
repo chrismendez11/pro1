@@ -1,7 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { CompaniesRepository } from './companies.repository';
-import { CreateCompanyDto } from './dtos/create-company.dto';
-import { UpdateCompanyDto } from './dtos/update-company.dto';
+import { CreateCompanyDto, UpdateCompanyDto } from './dtos/index.dto';
 
 @Injectable()
 export class CompaniesService {

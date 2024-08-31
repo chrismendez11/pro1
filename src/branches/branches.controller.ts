@@ -5,13 +5,14 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { BranchesService } from './branches.service';
-import { CreateBranchDto } from './dtos/create-branch.dto';
 import { GetUser } from 'src/shared/modules/auth/decorators/get-user.decorator';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/shared/interfaces/user.interface';
+import { CreateBranchDto, UpdateBranchDto } from './dtos/index.dto';
 
 @UseGuards(AuthGuard())
 @Controller('branches')
@@ -34,5 +35,13 @@ export class BranchesController {
   @Get(':branchId')
   getBranchById(@Param('branchId', new ParseUUIDPipe()) branchId: string) {
     return this.branchesService.getBranchById(branchId);
+  }
+
+  @Put(':branchId')
+  updateBranch(
+    @Param('branchId', new ParseUUIDPipe()) branchId: string,
+    @Body() updateBranchDto: UpdateBranchDto,
+  ) {
+    return this.branchesService.updateBranch(branchId, updateBranchDto);
   }
 }

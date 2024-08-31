@@ -1,12 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { BranchesRepository } from './branches.repository';
-import {
-  CreateBranchDto,
-  CreateBranchRepositoryDto,
-} from './dtos/create-branch.dto';
 import * as dayjs from 'dayjs';
 import { User } from 'src/shared/interfaces/user.interface';
 import { getDayOfTheWeek } from 'src/shared/utils/get-day-of-the-week.util';
+import {
+  CreateBranchDto,
+  CreateBranchRepositoryDto,
+  UpdateBranchDto,
+} from './dtos/index.dto';
 
 @Injectable()
 export class BranchesService {
@@ -130,5 +131,44 @@ export class BranchesService {
     };
 
     return branch;
+  }
+
+  async updateBranch(branchId: string, updateBranchDto: UpdateBranchDto) {
+    const { branchHours } = updateBranchDto;
+
+    if (branchHours?.length) {
+      branchHours.forEach((branchHour) => {
+        const { branchHourOpeningTime, branchHourClosingTime } = branchHour;
+        const standardDate = '2000-01-01';
+        if (
+          !dayjs
+            .utc(`${standardDate} ${branchHourOpeningTime}`)
+            .isBefore(
+              dayjs.utc(`${standardDate} ${branchHourClosingTime}`),
+              'hours',
+            )
+        ) {
+          throw new BadRequestException(
+            'La hora de apertura debe ser anterior a la hora de cierre.',
+          );
+        }
+        // Prisma does not support time only fields, so we need to convert the time to a date
+        branchHour.branchHourOpeningTime = dayjs
+          .utc(`${standardDate} ${branchHourOpeningTime}`)
+          .toDate();
+        branchHour.branchHourClosingTime = dayjs
+          .utc(`${standardDate} ${branchHourClosingTime}`)
+          .toDate();
+      });
+    } else {
+      updateBranchDto.branchHours = undefined;
+    }
+
+    await this.branchesRepository.updateBranch(branchId, updateBranchDto);
+
+    return {
+      message: 'Sede actualizada exitosamente',
+      branchId,
+    };
   }
 }

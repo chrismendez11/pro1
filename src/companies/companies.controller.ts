@@ -9,9 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
-import { CreateCompanyDto } from './dtos/create-company.dto';
-import { UpdateCompanyDto } from './dtos/update-company.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { CreateCompanyDto, UpdateCompanyDto } from './dtos/index.dto';
 
 @UseGuards(AuthGuard())
 @Controller('companies')

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/modules/prisma/prisma.service';
-import { CreateBranchRepositoryDto } from './dtos/create-branch.dto';
+import { CreateBranchRepositoryDto, UpdateBranchDto } from './dtos/index.dto';
 
 @Injectable()
 export class BranchesRepository {
@@ -71,6 +71,54 @@ export class BranchesRepository {
             branchHourClosingTime: true,
           },
         },
+      },
+    });
+  }
+
+  updateBranch(branchId: string, updateBranchRepositoryDto: UpdateBranchDto) {
+    const { branchName, branchAddress, countryId, branchHours } =
+      updateBranchRepositoryDto;
+
+    return this.prismaService.branch.update({
+      where: {
+        branchId,
+      },
+      data: {
+        branchName,
+        branchAddress,
+        countryId,
+        BranchHour: branchHours && {
+          deleteMany: {
+            branchHourDayOfWeek: {
+              notIn: branchHours.map(
+                (branchHour) => branchHour.branchHourDayOfWeek,
+              ),
+            },
+          },
+          createMany: {
+            data: branchHours,
+            skipDuplicates: true,
+          },
+          updateMany: branchHours.map(
+            ({
+              branchHourDayOfWeek,
+              branchHourOpeningTime,
+              branchHourClosingTime,
+            }) => ({
+              where: {
+                branchHourDayOfWeek,
+              },
+              data: {
+                branchHourDayOfWeek,
+                branchHourOpeningTime,
+                branchHourClosingTime,
+              },
+            }),
+          ),
+        },
+      },
+      select: {
+        branchId: true,
       },
     });
   }
