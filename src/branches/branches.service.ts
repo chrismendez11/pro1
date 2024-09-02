@@ -171,4 +171,9 @@ export class BranchesService {
       branchId,
     };
   }
+
+  async getBranchHours(branchId: string) {
+    const branchHours = await this.branchesRepository.getBranchHours(branchId);
+    return branchHours;
+  }
 }

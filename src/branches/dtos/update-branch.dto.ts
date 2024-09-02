@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -36,6 +37,7 @@ export class UpdateBranchDto {
   countryId?: number;
 
   @IsOptional()
+  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => BranchHourDto)
   branchHours?: BranchHourDto[];

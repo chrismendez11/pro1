@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { WinstonModule } from 'nest-winston';
 import { winstonLogger } from './shared/loggers/winston.logger';
 import { BranchesModule } from './branches/branches.module';
+import { CourtsModule } from './courts/courts.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { BranchesModule } from './branches/branches.module';
     CompaniesModule,
     UsersModule,
     BranchesModule,
+    CourtsModule,
   ],
   controllers: [],
   providers: [],

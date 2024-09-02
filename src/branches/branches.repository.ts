@@ -122,4 +122,21 @@ export class BranchesRepository {
       },
     });
   }
+
+  getBranchHours(branchId: string) {
+    return this.prismaService.branchHour.findMany({
+      orderBy: {
+        branchHourDayOfWeek: 'asc',
+      },
+      where: {
+        branchId,
+      },
+      select: {
+        branchHourId: true,
+        branchHourDayOfWeek: true,
+        branchHourOpeningTime: true,
+        branchHourClosingTime: true,
+      },
+    });
+  }
 }
