@@ -5,10 +5,11 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CourtsService } from './courts.service';
-import { CreateCourtDto } from './dtos/index.dto';
+import { CreateCourtDto, GetCourtsDto } from './dtos/index.dto';
 import { GetUser } from 'src/shared/modules/auth/decorators/get-user.decorator';
 import { User } from 'src/shared/interfaces/user.interface';
 import { AuthGuard } from '@nestjs/passport';
@@ -24,8 +25,8 @@ export class CourtsController {
   }
 
   @Get()
-  getCourts(@GetUser() user: User) {
-    return this.courtsService.getCourts(user);
+  getCourts(@Query() getCourtsDto: GetCourtsDto, @GetUser() user: User) {
+    return this.courtsService.getCourts(getCourtsDto, user);
   }
 
   @Get(':courtId')

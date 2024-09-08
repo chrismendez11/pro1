@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/shared/modules/prisma/prisma.service';
-import { CreateCourtRepositoryDto } from './dtos/index.dto';
+import {
+  CreateCourtRepositoryDto,
+  GetCourtsDto,
+  UpdateCourtDto,
+} from './dtos/index.dto';
 
 @Injectable()
 export class CourtsRepository {
@@ -32,12 +36,20 @@ export class CourtsRepository {
     });
   }
 
-  getCourts(companyId: string) {
+  getCourts(companyId: string, getCourtsDto: GetCourtsDto) {
+    const { courtName, branchId, courtStatusId, sportCourtTypeId } =
+      getCourtsDto;
     return this.prismaService.court.findMany({
       orderBy: {
         courtName: 'asc',
       },
       where: {
+        courtName: {
+          contains: courtName,
+        },
+        branchId,
+        courtStatusId,
+        sportCourtTypeId,
         Branch: {
           companyId,
         },
@@ -125,6 +137,27 @@ export class CourtsRepository {
             courtPricingDayOfWeek: true,
             courtPricingStartTime: true,
             courtPricingEndTime: true,
+          },
+        },
+      },
+    });
+  }
+
+  updateCourt(courtId: string, updateCourtRepositoryDto: UpdateCourtDto) {
+    const { courtName, sportCourtTypeId, branchId, courtPricing } =
+      updateCourtRepositoryDto;
+    return this.prismaService.court.update({
+      where: {
+        courtId,
+      },
+      data: {
+        courtName,
+        sportCourtTypeId,
+        branchId,
+        CourtPricing: {
+          deleteMany: {},
+          createMany: {
+            data: courtPricing,
           },
         },
       },

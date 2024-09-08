@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-class CourtPricingDto {
+export class CourtPricingDto {
   @IsNotEmpty()
   @IsPositive()
   courtPricingPerHour: number;

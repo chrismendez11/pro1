@@ -46,7 +46,7 @@ export class PrismaToHttpExceptionMapper {
         break;
       case PrismaErrorCodesConstants.RecordAlreadyExists:
         error = HttpStatusMessagesConstants[statusCode];
-        message = `Record '${meta.target}' already exists`;
+        message = `Record '${meta.modelName}' already exists`;
         break;
       case PrismaErrorCodesConstants.RecordDoesNotExist:
         error = HttpStatusMessagesConstants[statusCode];
