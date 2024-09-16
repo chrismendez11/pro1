@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
   OnModuleInit,
 } from '@nestjs/common';
 import { CourtsRepository } from './courts.repository';
@@ -159,7 +160,14 @@ export class CourtsService implements OnModuleInit {
   async updateCourt(courtId: string, updateCourtDto: UpdateCourtDto) {
     const { branchId, courtPricing } = updateCourtDto;
 
-    await this.courtPricingValidation(courtPricing, branchId);
+    if (courtPricing) {
+      if (!branchId) {
+        const { branchId } =
+          await this.courtsRepository.getBranchByCourtId(courtId);
+        await this.courtPricingValidation(courtPricing, branchId);
+      }
+      await this.courtPricingValidation(courtPricing, branchId);
+    }
 
     await this.courtsRepository.updateCourt(courtId, updateCourtDto);
 
@@ -172,6 +180,11 @@ export class CourtsService implements OnModuleInit {
   ): Promise<void> {
     // Validating the courtPricing matches with the branch schedule
     const branchHours = await this.branchesService.getBranchHours(branchId);
+
+    // Since the branchHours are mandatory, if the branchHours array is empty, the branch does not exist
+    if (!branchHours.length) {
+      throw new NotFoundException('Sede no encontrada.');
+    }
 
     courtPricing.forEach((courtPrice, index) => {
       const {
@@ -249,5 +262,9 @@ export class CourtsService implements OnModuleInit {
       courtPrice.courtPricingStartTime = startTime.toDate();
       courtPrice.courtPricingEndTime = endTime.toDate();
     });
+  }
+
+  async getCourtStatus() {
+    return await this.courtsRepository.getCourtStatus();
   }
 }

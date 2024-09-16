@@ -154,12 +154,31 @@ export class CourtsRepository {
         courtName,
         sportCourtTypeId,
         branchId,
-        CourtPricing: {
+        CourtPricing: courtPricing && {
           deleteMany: {},
           createMany: {
             data: courtPricing,
           },
         },
+      },
+    });
+  }
+
+  getBranchByCourtId(courtId: string) {
+    return this.prismaService.court.findUniqueOrThrow({
+      where: {
+        courtId,
+      },
+      select: {
+        branchId: true,
+      },
+    });
+  }
+
+  getCourtStatus() {
+    return this.prismaService.courtStatus.findMany({
+      orderBy: {
+        courtStatusName: 'asc',
       },
     });
   }

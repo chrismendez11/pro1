@@ -5,11 +5,12 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
 import { CourtsService } from './courts.service';
-import { CreateCourtDto, GetCourtsDto } from './dtos/index.dto';
+import { CreateCourtDto, GetCourtsDto, UpdateCourtDto } from './dtos/index.dto';
 import { GetUser } from 'src/shared/modules/auth/decorators/get-user.decorator';
 import { User } from 'src/shared/interfaces/user.interface';
 import { AuthGuard } from '@nestjs/passport';
@@ -29,8 +30,21 @@ export class CourtsController {
     return this.courtsService.getCourts(getCourtsDto, user);
   }
 
+  @Get('status')
+  getCourtStatus() {
+    return this.courtsService.getCourtStatus();
+  }
+
   @Get(':courtId')
   getCourtById(@Param('courtId', new ParseUUIDPipe()) courtId: string) {
     return this.courtsService.getCourtById(courtId);
+  }
+
+  @Put(':courtId')
+  updateCourt(
+    @Param('courtId', new ParseUUIDPipe()) courtId: string,
+    @Body() updateCourtDto: UpdateCourtDto,
+  ) {
+    return this.courtsService.updateCourt(courtId, updateCourtDto);
   }
 }
