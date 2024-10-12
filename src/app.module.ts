@@ -7,6 +7,7 @@ import { WinstonModule } from 'nest-winston';
 import { winstonLogger } from './shared/loggers/winston.logger';
 import { BranchesModule } from './branches/branches.module';
 import { CourtsModule } from './courts/courts.module';
+import { ReservationsModule } from './reservations/reservations.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CourtsModule } from './courts/courts.module';
     UsersModule,
     BranchesModule,
     CourtsModule,
+    ReservationsModule,
   ],
   controllers: [],
   providers: [],
