@@ -2,13 +2,13 @@ import {
   Body,
   Controller,
   Post,
-  Request,
   UseGuards,
   VERSION_NEUTRAL,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto } from './dtos/sign-in.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from './decorators/get-user.decorator';
 
 @Controller({
   path: 'auth',
@@ -19,7 +19,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('local'))
   @Post('sign-in')
-  signIn(@Body() _signInDto: SignInDto, @Request() req: Request) {
-    return this.authService.signIn(req['user']);
+  signIn(@Body() _signInDto: SignInDto, @GetUser() user: any) {
+    return this.authService.signIn(user);
   }
 }
