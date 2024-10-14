@@ -52,6 +52,16 @@ export class ReservationsRepository {
         reservationStartTime: true,
         reservarionEndTime: true,
         ReservationStatus: true,
+        reservationCreatedAt: true,
+        Court: {
+          select: {
+            Branch: {
+              select: {
+                countryId: true,
+              },
+            },
+          },
+        },
       },
     });
   }
@@ -77,6 +87,11 @@ export class ReservationsRepository {
           select: {
             courtId: true,
             courtName: true,
+            Branch: {
+              select: {
+                countryId: true,
+              },
+            },
           },
         },
       },

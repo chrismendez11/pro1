@@ -10,6 +10,8 @@ import * as dayjs from 'dayjs';
 import { User } from '@prisma/client';
 import { getTimeFromDateTime } from 'src/shared/utils/get-time-from-date-time.util';
 import { formatDate } from 'src/shared/utils/format-date.util';
+import { getTimezoneByCountryId } from 'src/shared/constants/dayjs-timezones.constants';
+import { formatDatetime } from 'src/shared/utils/format-datetime.util';
 
 @Injectable()
 export class ReservationsService {
@@ -65,14 +67,18 @@ export class ReservationsService {
         reservationStartTime,
         reservarionEndTime,
         ReservationStatus,
+        reservationCreatedAt,
+        Court,
       }) => {
+        const timezone = getTimezoneByCountryId(Court.Branch.countryId);
         return {
           reservationId,
           reservationHolderName,
-          reservationDate: dayjs.utc(reservationDate).format('DD/MM/YYYY'),
+          reservationDate: formatDate(reservationDate),
           reservationStartTime: getTimeFromDateTime(reservationStartTime),
           reservarionEndTime: getTimeFromDateTime(reservarionEndTime),
           reservationStatus: ReservationStatus,
+          reservationCreatedAt: formatDatetime(reservationCreatedAt, timezone),
         };
       },
     );
@@ -95,19 +101,23 @@ export class ReservationsService {
       reservationTotalPrice,
     } = await this.reservationsRepository.getReservationById(reservationId);
 
+    const timezone = getTimezoneByCountryId(Court.Branch.countryId);
     const reservation = {
       reservationId,
       reservationHolderName,
       reservationContactPhone,
       reservationEmail,
-      reservationDate: dayjs.utc(reservationDate).format('DD/MM/YYYY'),
+      reservationDate: formatDate(reservationDate),
       reservationStartTime: getTimeFromDateTime(reservationStartTime),
       reservarionEndTime: getTimeFromDateTime(reservarionEndTime),
       reservationStatus: ReservationStatus,
       reservationTotalPrice: Number(reservationTotalPrice),
       reservationNote,
-      reservationCreatedAt: formatDate(reservationCreatedAt),
-      court: Court,
+      reservationCreatedAt: formatDatetime(reservationCreatedAt, timezone),
+      court: {
+        courtId: Court.courtId,
+        courtName: Court.courtName,
+      },
     };
 
     return reservation;
