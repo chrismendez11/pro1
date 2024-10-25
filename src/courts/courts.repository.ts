@@ -97,7 +97,7 @@ export class CourtsRepository {
   }
 
   getCourtById(courtId: string) {
-    return this.prismaService.court.findUniqueOrThrow({
+    return this.prismaService.court.findUnique({
       where: {
         courtId,
       },
@@ -114,6 +114,7 @@ export class CourtsRepository {
           select: {
             branchId: true,
             branchName: true,
+            companyId: true,
           },
         },
         CourtStatus: {

@@ -17,11 +17,13 @@ import { getTimeFromDateTime } from 'src/shared/utils/get-time-from-date-time.ut
 import { formatDate } from 'src/shared/utils/format-date.util';
 import { getTimezoneByCountryId } from 'src/shared/constants/dayjs-timezones.constants';
 import { formatDatetime } from 'src/shared/utils/format-datetime.util';
+import { CompaniesService } from 'src/companies/companies.service';
 
 @Injectable()
 export class ReservationsService {
   constructor(
     private readonly reservationsRepository: ReservationsRepository,
+    private readonly companiesService: CompaniesService,
   ) {}
 
   async createReservation(createReservationDto: CreateReservationDto) {
@@ -133,6 +135,12 @@ export class ReservationsService {
       throw new BadRequestException('Reservación no encontrada.');
     }
 
+    const companySettings = await this.companiesService.getCompanySettings(
+      reservationRepository.Court.Branch.companyId,
+    );
+
+    const companyCurrency = companySettings?.Currency.currencySymbol || '$';
+
     const {
       reservationHolderName,
       Court,
@@ -158,7 +166,9 @@ export class ReservationsService {
       reservationStartTime: getTimeFromDateTime(reservationStartTime),
       reservarionEndTime: getTimeFromDateTime(reservarionEndTime),
       reservationStatus: ReservationStatus,
+      reservationCurrency: companyCurrency,
       reservationTotalPrice: Number(reservationTotalPrice),
+      reservationTotalPriceFormatted: `${companyCurrency} ${reservationTotalPrice}`,
       reservationNote,
       reservationCreatedAt: formatDatetime(reservationCreatedAt, timezone),
       reservarionUpdatedAt: formatDatetime(reservationtUpdatedAt, timezone),

@@ -7,5 +7,6 @@ import { CompaniesRepository } from './companies.repository';
   imports: [],
   controllers: [CompaniesController],
   providers: [CompaniesService, CompaniesRepository],
+  exports: [CompaniesService],
 })
 export class CompaniesModule {}

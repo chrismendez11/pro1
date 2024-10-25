@@ -62,4 +62,8 @@ export class CompaniesService {
       companyId,
     };
   }
+
+  async getCompanySettings(companyId: string) {
+    return await this.companiesRepository.getCompanySettings(companyId);
+  }
 }

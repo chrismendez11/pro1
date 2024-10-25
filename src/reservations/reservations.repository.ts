@@ -92,6 +92,7 @@ export class ReservationsRepository {
             Branch: {
               select: {
                 countryId: true,
+                companyId: true,
               },
             },
           },

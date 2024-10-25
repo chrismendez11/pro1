@@ -21,12 +21,14 @@ import * as isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { User } from 'src/shared/interfaces/user.interface';
 import { getDayOfTheWeek } from 'src/shared/utils/get-day-of-the-week.util';
 import { getTimeFromDateTime } from 'src/shared/utils/get-time-from-date-time.util';
+import { CompaniesService } from 'src/companies/companies.service';
 
 @Injectable()
 export class CourtsService implements OnModuleInit {
   constructor(
     private readonly courtsRepository: CourtsRepository,
     private readonly branchesService: BranchesService,
+    private readonly companiesService: CompaniesService,
   ) {}
 
   onModuleInit() {
@@ -60,6 +62,12 @@ export class CourtsService implements OnModuleInit {
 
   async getCourts(getCourtsDto: GetCourtsDto, user: User) {
     const companyId = user.companyId;
+
+    const companySettings =
+      await this.companiesService.getCompanySettings(companyId);
+
+    const companyCurrency = companySettings?.Currency.currencySymbol || '$';
+
     const courtsRepository = await this.courtsRepository.getCourts(
       companyId,
       getCourtsDto,
@@ -84,7 +92,9 @@ export class CourtsService implements OnModuleInit {
         }) => {
           return {
             courtPricingId,
+            courtCurrency: companyCurrency,
             courtPricingPerHour: Number(courtPricingPerHour),
+            courtPricingPerHourFormatted: `${companyCurrency} ${courtPricingPerHour}`,
             courtPricingDayOfWeek: getDayOfTheWeek(courtPricingDayOfWeek),
             courtPricingStartTime: getTimeFromDateTime(courtPricingStartTime),
             courtPricingEndTime: getTimeFromDateTime(courtPricingEndTime),
@@ -117,8 +127,18 @@ export class CourtsService implements OnModuleInit {
   async getCourtById(courtId: string) {
     const courtRepository = await this.courtsRepository.getCourtById(courtId);
 
+    if (!courtRepository) {
+      throw new NotFoundException('Cancha no encontrada.');
+    }
+
     const { courtName, SportCourtType, Branch, CourtStatus, CourtPricing } =
       courtRepository;
+
+    const companySettings = await this.companiesService.getCompanySettings(
+      courtRepository.Branch.companyId,
+    );
+
+    const companyCurrency = companySettings?.Currency.currencySymbol || '$';
 
     const courtPricing = CourtPricing.map(
       ({
@@ -130,7 +150,9 @@ export class CourtsService implements OnModuleInit {
       }) => {
         return {
           courtPricingId,
+          courtCurrency: companyCurrency,
           courtPricingPerHour: Number(courtPricingPerHour),
+          courtPricingPerHourFormatted: `${companyCurrency} ${courtPricingPerHour}`,
           courtPricingDayOfWeek: getDayOfTheWeek(courtPricingDayOfWeek),
           courtPricingStartTime: getTimeFromDateTime(courtPricingStartTime),
           courtPricingEndTime: getTimeFromDateTime(courtPricingEndTime),

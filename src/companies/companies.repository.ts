@@ -52,4 +52,13 @@ export class CompaniesRepository {
       },
     });
   }
+
+  getCompanySettings(companyId: string) {
+    return this.prismaService.companySetting.findFirst({
+      where: { companySettingId: companyId },
+      select: {
+        Currency: true,
+      },
+    });
+  }
 }
