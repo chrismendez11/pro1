@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -43,6 +44,7 @@ export class CreateReservationDto {
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => value?.trim())
   reservationNote?: string;
 }
 

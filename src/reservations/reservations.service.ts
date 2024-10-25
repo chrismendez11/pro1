@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { ReservationsRepository } from './reservations.repository';
 import {
   CreateReservationDto,
@@ -21,21 +25,55 @@ export class ReservationsService {
   ) {}
 
   async createReservation(createReservationDto: CreateReservationDto) {
-    const { reservationDate, reservationStartTime, reservarionEndTime } =
-      createReservationDto;
+    const {
+      reservationDate,
+      reservationStartTime,
+      reservarionEndTime,
+      courtId,
+    } = createReservationDto;
 
-    // Prisma does not support time only fields, so we need to convert the time to a date
-    const standardDate = '1970-01-01';
+    // Prisma does not support time only fields, so we need to convert the time to a datetime
+    const standardDate = dayjs.utc().format('YYYY-MM-DD');
     const startTime = dayjs
       .utc(`${standardDate} ${reservationStartTime}`)
       .toDate();
     const endTime = dayjs.utc(`${standardDate} ${reservarionEndTime}`).toDate();
 
+    if (!dayjs.utc(startTime).isBefore(dayjs.utc(endTime))) {
+      throw new BadRequestException(
+        'La hora de finalización debe ser posterior a la hora de inicio.',
+      );
+    }
+
+    const reservationDateFormatted = dayjs.utc(reservationDate).toDate();
+
+    // Reservations status that are considered as active
+    const reservationStatusIds = [
+      ReservationStatusConstants.ACTIVE,
+      ReservationStatusConstants.IN_PROGRESS,
+    ];
+
+    // Validating if there is already a reservation for the same court, date and time
+    const reservationExists =
+      await this.reservationsRepository.getReservationByCourtAndDateTime(
+        courtId,
+        reservationDateFormatted,
+        startTime,
+        endTime,
+        reservationStatusIds,
+      );
+    if (reservationExists) {
+      throw new ConflictException(
+        'Ya existe una reservación para la misma cancha, fecha y hora.',
+      );
+    }
+
+    // Initial status for the reservation
     const reservationStatusId = ReservationStatusConstants.ACTIVE;
 
     const createReservationRepositoryDto: CreateReservationRepositoryDto = {
       ...createReservationDto,
-      reservationDate: dayjs.utc(reservationDate).toDate(),
+      reservationDate: reservationDateFormatted,
       reservationStartTime: startTime,
       reservarionEndTime: endTime,
       reservationStatusId,
@@ -128,11 +166,21 @@ export class ReservationsService {
     reservationId: string,
     updateReservationDto: UpdateReservationDto,
   ) {
-    const { reservationDate, reservationStartTime, reservarionEndTime } =
-      updateReservationDto;
+    const {
+      reservationDate,
+      reservationStartTime,
+      reservarionEndTime,
+      courtId,
+    } = updateReservationDto;
 
-    // Prisma does not support time only fields, so we need to convert the time to a date
-    const standardDate = '1970-01-01';
+    const reservation =
+      await this.reservationsRepository.getReservationById(reservationId);
+    if (!reservation) {
+      throw new BadRequestException('Reservación no encontrada.');
+    }
+
+    // Prisma does not support time only fields, so we need to convert the time to a datetime
+    const standardDate = dayjs.utc().format('YYYY-MM-DD');
     const startTime =
       reservationStartTime &&
       dayjs.utc(`${standardDate} ${reservationStartTime}`).toDate();
@@ -140,11 +188,107 @@ export class ReservationsService {
       reservarionEndTime &&
       dayjs.utc(`${standardDate} ${reservarionEndTime}`).toDate();
 
+    // Validating that the end time is after the start time. If one of them is being updated but the other is not, we will use the current value
+    if (
+      startTime &&
+      endTime &&
+      !dayjs.utc(startTime).isBefore(dayjs.utc(endTime))
+    ) {
+      throw new BadRequestException(
+        'La hora de finalización debe ser posterior a la hora de inicio.',
+      );
+    } else if (
+      startTime &&
+      !dayjs
+        .utc(startTime)
+        .isBefore(
+          dayjs
+            .utc(
+              `${standardDate} ${dayjs.utc(reservation.reservarionEndTime).format('HH:mm:ss')}`,
+            )
+            .toDate(),
+        )
+    ) {
+      throw new BadRequestException(
+        'La hora de finalización debe ser posterior a la hora de inicio.',
+      );
+    } else if (
+      endTime &&
+      !dayjs
+        .utc(
+          dayjs
+            .utc(
+              `${standardDate} ${dayjs.utc(reservation.reservationStartTime).format('HH:mm:ss')}`,
+            )
+            .toDate(),
+        )
+        .isBefore(endTime)
+    ) {
+      throw new BadRequestException(
+        'La hora de finalización debe ser posterior a la hora de inicio.',
+      );
+    }
+
+    // If the reservation date, startTime or endTime is being updated, we will use the new value for validating if there is already a reservation for the same court, date and time
+    let reservationDateFormatted = dayjs
+      .utc(reservation.reservationDate)
+      .toDate();
+    if (
+      reservationDate &&
+      !dayjs.utc(reservationDate).isSame(dayjs.utc(reservation.reservationDate))
+    ) {
+      reservationDateFormatted = dayjs.utc(reservationDate).toDate();
+    }
+
+    let reservationStartTimeFormatted = dayjs
+      .utc(reservation.reservationStartTime)
+      .toDate();
+    if (
+      startTime &&
+      !dayjs.utc(startTime).isSame(dayjs.utc(reservation.reservationStartTime))
+    ) {
+      reservationStartTimeFormatted = startTime;
+    }
+
+    let reservationEndTimeFormatted = dayjs
+      .utc(reservation.reservarionEndTime)
+      .toDate();
+    if (
+      endTime &&
+      !dayjs.utc(endTime).isSame(dayjs.utc(reservation.reservarionEndTime))
+    ) {
+      reservationEndTimeFormatted = endTime;
+    }
+
+    // Reservations status that are considered as active
+    const reservationStatusIds = [
+      ReservationStatusConstants.ACTIVE,
+      ReservationStatusConstants.IN_PROGRESS,
+    ];
+
+    // Validating if there is already a reservation for the same court, date and time
+    const reservationExists =
+      await this.reservationsRepository.getReservationByCourtAndDateTime(
+        courtId,
+        reservationDateFormatted,
+        reservationStartTimeFormatted,
+        reservationEndTimeFormatted,
+        reservationStatusIds,
+      );
+    if (
+      reservationExists &&
+      reservationExists.reservationId !== reservationId
+    ) {
+      throw new ConflictException(
+        'Ya existe una reservación para la misma cancha, fecha y hora.',
+      );
+    }
+
     const updateReservationRepositoryDto: UpdateReservationDto = {
       ...updateReservationDto,
-      reservationDate: reservationDate && dayjs.utc(reservationDate).toDate(),
-      reservationStartTime: startTime,
-      reservarionEndTime: endTime,
+      reservationDate: reservationDateFormatted,
+      reservationStartTime: reservationStartTimeFormatted,
+      reservarionEndTime: reservationEndTimeFormatted,
     };
     await this.reservationsRepository.updateReservation(
       reservationId,

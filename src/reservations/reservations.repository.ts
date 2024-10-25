@@ -68,7 +68,7 @@ export class ReservationsRepository {
   }
 
   getReservationById(reservationId: string) {
-    return this.prismaService.reservation.findUniqueOrThrow({
+    return this.prismaService.reservation.findUnique({
       where: {
         reservationId,
       },
@@ -108,6 +108,57 @@ export class ReservationsRepository {
         reservationId,
       },
       data: updateReservationRepositoryDto,
+      select: {
+        reservationId: true,
+      },
+    });
+  }
+
+  getReservationByCourtAndDateTime(
+    courtId: string,
+    reservationDate: Date,
+    reservationStartTime: Date | string,
+    reservarionEndTime: Date | string,
+    reservationStatusIds: string[],
+  ) {
+    return this.prismaService.reservation.findFirst({
+      where: {
+        courtId,
+        reservationDate,
+        reservationStatusId: {
+          in: reservationStatusIds,
+        },
+        OR: [
+          {
+            reservationStartTime: {
+              lte: reservationStartTime,
+            },
+            reservarionEndTime: {
+              gte: reservarionEndTime,
+            },
+          },
+          {
+            reservationStartTime: {
+              gte: reservationStartTime,
+            },
+            reservarionEndTime: {
+              lte: reservarionEndTime,
+            },
+          },
+          {
+            reservarionEndTime: {
+              gte: reservationStartTime,
+              lte: reservarionEndTime,
+            },
+          },
+          {
+            reservationStartTime: {
+              gte: reservationStartTime,
+              lte: reservarionEndTime,
+            },
+          },
+        ],
+      },
       select: {
         reservationId: true,
       },
