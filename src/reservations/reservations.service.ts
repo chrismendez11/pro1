@@ -4,6 +4,7 @@ import {
   CreateReservationDto,
   CreateReservationRepositoryDto,
   GetReservationsDto,
+  UpdateReservationDto,
 } from './dtos/index.dto';
 import { ReservationStatusConstants } from './constants/reservation-status.constant';
 import * as dayjs from 'dayjs';
@@ -20,8 +21,6 @@ export class ReservationsService {
   ) {}
 
   async createReservation(createReservationDto: CreateReservationDto) {
-    const reservationStatusId = ReservationStatusConstants.ACTIVE;
-
     const { reservationDate, reservationStartTime, reservarionEndTime } =
       createReservationDto;
 
@@ -31,6 +30,8 @@ export class ReservationsService {
       .utc(`${standardDate} ${reservationStartTime}`)
       .toDate();
     const endTime = dayjs.utc(`${standardDate} ${reservarionEndTime}`).toDate();
+
+    const reservationStatusId = ReservationStatusConstants.ACTIVE;
 
     const createReservationRepositoryDto: CreateReservationRepositoryDto = {
       ...createReservationDto,
@@ -121,5 +122,38 @@ export class ReservationsService {
     };
 
     return reservation;
+  }
+
+  async updateReservation(
+    reservationId: string,
+    updateReservationDto: UpdateReservationDto,
+  ) {
+    const { reservationDate, reservationStartTime, reservarionEndTime } =
+      updateReservationDto;
+
+    // Prisma does not support time only fields, so we need to convert the time to a date
+    const standardDate = '1970-01-01';
+    const startTime =
+      reservationStartTime &&
+      dayjs.utc(`${standardDate} ${reservationStartTime}`).toDate();
+    const endTime =
+      reservarionEndTime &&
+      dayjs.utc(`${standardDate} ${reservarionEndTime}`).toDate();
+
+    const updateReservationRepositoryDto: UpdateReservationDto = {
+      ...updateReservationDto,
+      reservationDate: reservationDate && dayjs.utc(reservationDate).toDate(),
+      reservationStartTime: startTime,
+      reservarionEndTime: endTime,
+    };
+    await this.reservationsRepository.updateReservation(
+      reservationId,
+      updateReservationRepositoryDto,
+    );
+
+    return {
+      message: 'Reservación actualizada exitosamente',
+      reservationId,
+    };
   }
 }

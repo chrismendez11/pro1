@@ -3,6 +3,7 @@ import { PrismaService } from 'src/shared/modules/prisma/prisma.service';
 import {
   CreateReservationRepositoryDto,
   GetReservationsDto,
+  UpdateReservationDto,
 } from './dtos/index.dto';
 
 @Injectable()
@@ -94,6 +95,21 @@ export class ReservationsRepository {
             },
           },
         },
+      },
+    });
+  }
+
+  updateReservation(
+    reservationId: string,
+    updateReservationRepositoryDto: UpdateReservationDto,
+  ) {
+    return this.prismaService.reservation.update({
+      where: {
+        reservationId,
+      },
+      data: updateReservationRepositoryDto,
+      select: {
+        reservationId: true,
       },
     });
   }
