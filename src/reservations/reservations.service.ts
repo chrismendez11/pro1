@@ -126,6 +126,13 @@ export class ReservationsService {
   }
 
   async getReservationById(reservationId: string) {
+    const reservationRepository =
+      await this.reservationsRepository.getReservationById(reservationId);
+
+    if (!reservationRepository) {
+      throw new BadRequestException('Reservación no encontrada.');
+    }
+
     const {
       reservationHolderName,
       Court,
@@ -133,12 +140,13 @@ export class ReservationsService {
       reservarionEndTime,
       reservationContactPhone,
       reservationCreatedAt,
+      reservationtUpdatedAt,
       reservationDate,
       reservationEmail,
       reservationNote,
       reservationStartTime,
       reservationTotalPrice,
-    } = await this.reservationsRepository.getReservationById(reservationId);
+    } = reservationRepository;
 
     const timezone = getTimezoneByCountryId(Court.Branch.countryId);
     const reservation = {
@@ -153,6 +161,7 @@ export class ReservationsService {
       reservationTotalPrice: Number(reservationTotalPrice),
       reservationNote,
       reservationCreatedAt: formatDatetime(reservationCreatedAt, timezone),
+      reservarionUpdatedAt: formatDatetime(reservationtUpdatedAt, timezone),
       court: {
         courtId: Court.courtId,
         courtName: Court.courtName,
@@ -299,5 +308,9 @@ export class ReservationsService {
       message: 'Reservación actualizada exitosamente',
       reservationId,
     };
+  }
+
+  async getReservationStatus() {
+    return await this.reservationsRepository.getReservationStatus();
   }
 }

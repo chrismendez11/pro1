@@ -83,6 +83,7 @@ export class ReservationsRepository {
         reservationTotalPrice: true,
         reservationNote: true,
         reservationCreatedAt: true,
+        reservationtUpdatedAt: true,
         ReservationStatus: true,
         Court: {
           select: {
@@ -110,6 +111,14 @@ export class ReservationsRepository {
       data: updateReservationRepositoryDto,
       select: {
         reservationId: true,
+      },
+    });
+  }
+
+  getReservationStatus() {
+    return this.prismaService.reservationStatus.findMany({
+      orderBy: {
+        reservationStatusName: 'asc',
       },
     });
   }

@@ -37,6 +37,11 @@ export class ReservationsController {
     return this.reservationsService.getReservations(getReservationsDto, user);
   }
 
+  @Get('status')
+  getReservationStatus() {
+    return this.reservationsService.getReservationStatus();
+  }
+
   @Get(':reservationId')
   getReservationById(
     @Param('reservationId', new ParseUUIDPipe()) reservationId: string,
