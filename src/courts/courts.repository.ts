@@ -183,4 +183,18 @@ export class CourtsRepository {
       },
     });
   }
+
+  updateCourtStatus(courtId: string, courtStatusId: string) {
+    return this.prismaService.court.update({
+      where: {
+        courtId,
+      },
+      data: {
+        courtStatusId,
+      },
+      select: {
+        courtId: true,
+      },
+    });
+  }
 }

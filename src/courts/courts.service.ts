@@ -257,4 +257,28 @@ export class CourtsService implements OnModuleInit {
   async getCourtStatus() {
     return await this.courtsRepository.getCourtStatus();
   }
+
+  async updateCourtStatus(courtId: string, courtStatusId: string) {
+    const court = await this.courtsRepository.getCourtById(courtId);
+    if (!court) {
+      throw new NotFoundException('Cancha no encontrada.');
+    }
+
+    // Valid court status
+    const courtStatus = [
+      CourtStatusConstants.IN_MAINTENANCE,
+      CourtStatusConstants.AVAILABLE,
+    ];
+
+    if (!courtStatus.includes(courtStatusId)) {
+      throw new BadRequestException('Estado de cancha inválido.');
+    }
+
+    await this.courtsRepository.updateCourtStatus(courtId, courtStatusId);
+
+    return {
+      message: 'Estado de cancha actualizado exitosamente.',
+      courtId,
+    };
+  }
 }

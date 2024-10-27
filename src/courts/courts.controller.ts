@@ -47,4 +47,12 @@ export class CourtsController {
   ) {
     return this.courtsService.updateCourt(courtId, updateCourtDto);
   }
+
+  @Put(':courtId/status')
+  updateCourtStatus(
+    @Param('courtId', new ParseUUIDPipe()) courtId: string,
+    @Body('courtStatusId', new ParseUUIDPipe()) courtStatusId: string,
+  ) {
+    return this.courtsService.updateCourtStatus(courtId, courtStatusId);
+  }
 }
