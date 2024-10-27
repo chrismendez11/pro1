@@ -185,6 +185,11 @@ export class ReservationsRepository {
       select: {
         reservationStatusId: true,
         courtId: true,
+        Court: {
+          select: {
+            courtStatusId: true,
+          },
+        },
       },
     });
   }

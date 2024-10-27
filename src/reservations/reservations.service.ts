@@ -353,6 +353,14 @@ export class ReservationsService {
         courtStatusId = CourtStatusConstants.AVAILABLE;
         break;
       case ReservationStatusConstants.IN_PROGRESS:
+        // Validating that the court is available
+        if (
+          reservation.Court.courtStatusId !== CourtStatusConstants.AVAILABLE
+        ) {
+          throw new ConflictException(
+            'La cancha no se encuentra disponible para iniciar la reservación.',
+          );
+        }
         courtStatusId = CourtStatusConstants.IN_USE;
         break;
       case ReservationStatusConstants.COMPLETED:
