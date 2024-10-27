@@ -63,44 +63,13 @@ export class CourtsService implements OnModuleInit {
   async getCourts(getCourtsDto: GetCourtsDto, user: User) {
     const companyId = user.companyId;
 
-    const companySettings =
-      await this.companiesService.getCompanySettings(companyId);
-
-    const companyCurrency = companySettings?.Currency.currencySymbol || '$';
-
     const courtsRepository = await this.courtsRepository.getCourts(
       companyId,
       getCourtsDto,
     );
 
     const courts = courtsRepository.map((court) => {
-      const {
-        courtId,
-        courtName,
-        SportCourtType,
-        Branch,
-        CourtStatus,
-        CourtPricing,
-      } = court;
-      const courtPricing = CourtPricing.map(
-        ({
-          courtPricingId,
-          courtPricingDayOfWeek,
-          courtPricingStartTime,
-          courtPricingEndTime,
-          courtPricingPerHour,
-        }) => {
-          return {
-            courtPricingId,
-            courtCurrency: companyCurrency,
-            courtPricingPerHour: Number(courtPricingPerHour),
-            courtPricingPerHourFormatted: `${companyCurrency} ${courtPricingPerHour}`,
-            courtPricingDayOfWeek: getDayOfTheWeek(courtPricingDayOfWeek),
-            courtPricingStartTime: getTimeFromDateTime(courtPricingStartTime),
-            courtPricingEndTime: getTimeFromDateTime(courtPricingEndTime),
-          };
-        },
-      );
+      const { courtId, courtName, SportCourtType, Branch, CourtStatus } = court;
 
       return {
         courtId,
@@ -117,7 +86,6 @@ export class CourtsService implements OnModuleInit {
           courtStatusId: CourtStatus.courtStatusId,
           courtStatusName: CourtStatus.courtStatusName,
         },
-        courtPricing,
       };
     });
 

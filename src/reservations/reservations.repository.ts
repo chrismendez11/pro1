@@ -82,6 +82,8 @@ export class ReservationsRepository {
         reservarionEndTime: true,
         reservationTotalPrice: true,
         reservationNote: true,
+        courtId: true,
+        reservationStatusId: true,
         reservationCreatedAt: true,
         reservationtUpdatedAt: true,
         ReservationStatus: true,
@@ -173,5 +175,49 @@ export class ReservationsRepository {
         reservationId: true,
       },
     });
+  }
+
+  getReservationStatusById(reservationId: string) {
+    return this.prismaService.reservation.findUnique({
+      where: {
+        reservationId,
+      },
+      select: {
+        reservationStatusId: true,
+        courtId: true,
+      },
+    });
+  }
+
+  updateReservationStatus(
+    reservationId: string,
+    reservationStatusId: string,
+    courtId: string,
+    courtStatusId: string,
+  ) {
+    const reservation = this.prismaService.reservation.update({
+      where: {
+        reservationId,
+      },
+      data: {
+        reservationStatusId,
+      },
+      select: {
+        reservationId: true,
+      },
+    });
+    const court = this.prismaService.court.update({
+      where: {
+        courtId,
+      },
+      data: {
+        courtStatusId,
+      },
+      select: {
+        courtId: true,
+      },
+    });
+
+    return this.prismaService.$transaction([reservation, court]);
   }
 }

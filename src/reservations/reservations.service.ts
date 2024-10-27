@@ -12,12 +12,13 @@ import {
 } from './dtos/index.dto';
 import { ReservationStatusConstants } from './constants/reservation-status.constant';
 import * as dayjs from 'dayjs';
-import { User } from '@prisma/client';
 import { getTimeFromDateTime } from 'src/shared/utils/get-time-from-date-time.util';
 import { formatDate } from 'src/shared/utils/format-date.util';
 import { getTimezoneByCountryId } from 'src/shared/constants/dayjs-timezones.constants';
 import { formatDatetime } from 'src/shared/utils/format-datetime.util';
 import { CompaniesService } from 'src/companies/companies.service';
+import { User } from 'src/shared/interfaces/user.interface';
+import { CourtStatusConstants } from 'src/courts/constants/court-status.constants';
 
 @Injectable()
 export class ReservationsService {
@@ -322,5 +323,58 @@ export class ReservationsService {
 
   async getReservationStatus() {
     return await this.reservationsRepository.getReservationStatus();
+  }
+
+  async updateReservationStatus(
+    reservationId: string,
+    reservationStatusId: string,
+  ) {
+    const reservation =
+      await this.reservationsRepository.getReservationStatusById(reservationId);
+    if (!reservation) {
+      throw new BadRequestException('Reservación no encontrada.');
+    }
+
+    const finalReservationStatus = [
+      ReservationStatusConstants.CANCELLED,
+      ReservationStatusConstants.COMPLETED,
+    ];
+
+    if (finalReservationStatus.includes(reservation.reservationStatusId)) {
+      throw new ConflictException(
+        'No es posible actualizar el estado de una reservación completada o cancelada.',
+      );
+    }
+
+    let courtStatusId: string;
+
+    switch (reservationStatusId) {
+      case ReservationStatusConstants.ACTIVE:
+        courtStatusId = CourtStatusConstants.AVAILABLE;
+        break;
+      case ReservationStatusConstants.IN_PROGRESS:
+        courtStatusId = CourtStatusConstants.IN_USE;
+        break;
+      case ReservationStatusConstants.COMPLETED:
+        courtStatusId = CourtStatusConstants.AVAILABLE;
+        break;
+      case ReservationStatusConstants.CANCELLED:
+        courtStatusId = CourtStatusConstants.AVAILABLE;
+        break;
+      default:
+        throw new BadRequestException('Estado de la reservación inválido');
+    }
+
+    await this.reservationsRepository.updateReservationStatus(
+      reservationId,
+      reservationStatusId,
+      reservation.courtId,
+      courtStatusId,
+    );
+
+    return {
+      message: 'Estado de la reservación actualizado exitosamente.',
+      reservationId,
+    };
   }
 }

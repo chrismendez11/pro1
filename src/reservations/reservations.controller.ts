@@ -59,4 +59,15 @@ export class ReservationsController {
       updateReservationDto,
     );
   }
+
+  @Put(':reservationId/status')
+  updateReservationStatus(
+    @Param('reservationId', new ParseUUIDPipe()) reservationId: string,
+    @Body('reservationStatusId') reservationStatusId: string,
+  ) {
+    return this.reservationsService.updateReservationStatus(
+      reservationId,
+      reservationStatusId,
+    );
+  }
 }
