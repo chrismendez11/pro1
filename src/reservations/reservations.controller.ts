@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ReservationsService } from './reservations.service';
@@ -14,10 +15,12 @@ import {
   CreateReservationDto,
   GetReservationsDto,
   UpdateReservationDto,
+  GetReservationsReportDto,
 } from './dtos/index.dto';
 import { GetUser } from 'src/shared/modules/auth/decorators/get-user.decorator';
 import { User } from '@prisma/client';
 import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 
 @UseGuards(AuthGuard())
 @Controller('reservations')
@@ -40,6 +43,25 @@ export class ReservationsController {
   @Get('status')
   getReservationStatus() {
     return this.reservationsService.getReservationStatus();
+  }
+
+  @Get('report')
+  async getReservationsReport(
+    @Query() getReservationsReportDto: GetReservationsReportDto,
+    @GetUser() user: User,
+    @Res() response: Response,
+  ) {
+    const report = await this.reservationsService.getReservationsReport(
+      getReservationsReportDto,
+      user,
+    );
+
+    response.set(
+      'Content-Disposition',
+      `attachment; filename=${report.filename}`,
+    );
+    response.contentType(report.contentType);
+    response.send(report.data);
   }
 
   @Get(':reservationId')

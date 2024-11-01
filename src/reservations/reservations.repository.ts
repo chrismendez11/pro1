@@ -225,4 +225,49 @@ export class ReservationsRepository {
 
     return this.prismaService.$transaction([reservation, court]);
   }
+
+  getReservationsReport(
+    companyId: string,
+    getReservationsRepositoryDto: GetReservationsDto,
+  ) {
+    const { reservationStatusId, reservationHolderName } =
+      getReservationsRepositoryDto;
+    return this.prismaService.reservation.findMany({
+      orderBy: [
+        {
+          reservationDate: 'asc',
+        },
+        { reservationStartTime: 'asc' },
+        { reservarionEndTime: 'asc' },
+      ],
+      where: {
+        Court: {
+          Branch: {
+            companyId,
+          },
+        },
+        reservationStatusId,
+        reservationHolderName: {
+          contains: reservationHolderName,
+        },
+      },
+      select: {
+        reservationId: true,
+        reservationHolderName: true,
+        reservationContactPhone: true,
+        reservationEmail: true,
+        reservationDate: true,
+        reservationStartTime: true,
+        reservarionEndTime: true,
+        reservationTotalPrice: true,
+        ReservationStatus: true,
+        Court: {
+          select: {
+            courtId: true,
+            courtName: true,
+          },
+        },
+      },
+    });
+  }
 }

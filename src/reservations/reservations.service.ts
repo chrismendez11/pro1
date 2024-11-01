@@ -9,6 +9,7 @@ import {
   CreateReservationRepositoryDto,
   GetReservationsDto,
   UpdateReservationDto,
+  GetReservationsReportDto,
 } from './dtos/index.dto';
 import { ReservationStatusConstants } from './constants/reservation-status.constant';
 import * as dayjs from 'dayjs';
@@ -19,6 +20,10 @@ import { formatDatetime } from 'src/shared/utils/format-datetime.util';
 import { CompaniesService } from 'src/companies/companies.service';
 import { User } from 'src/shared/interfaces/user.interface';
 import { CourtStatusConstants } from 'src/courts/constants/court-status.constants';
+import { ReportType } from 'src/reservations/enums/report-types.enum';
+import { ReportContext } from './reports/report.context';
+import { ExcelReportStrategy } from './reports/strategies/excel-report.strategy';
+import { ReportDto } from './reports/dtos';
 
 @Injectable()
 export class ReservationsService {
@@ -384,5 +389,37 @@ export class ReservationsService {
       message: 'Estado de la reservación actualizado exitosamente.',
       reservationId,
     };
+  }
+
+  async getReservationsReport(
+    getReservationsReportDto: GetReservationsReportDto,
+    user: User,
+  ) {
+    const companyId = user.companyId;
+
+    const companySettings =
+      await this.companiesService.getCompanySettings(companyId);
+    const companyCurrency = companySettings?.Currency.currencySymbol || '$';
+
+    const reservationsRepository =
+      await this.reservationsRepository.getReservationsReport(
+        companyId,
+        getReservationsReportDto,
+      );
+
+    const reportDto: ReportDto = {
+      reservationsRepository,
+      companyCurrency,
+    };
+
+    const { reportType } = getReservationsReportDto;
+
+    switch (reportType) {
+      case ReportType.EXCEL:
+        const report = new ReportContext(new ExcelReportStrategy());
+        return report.generateReport(reportDto);
+      default:
+        throw new BadRequestException('Tipo de reporte inválido');
+    }
   }
 }
