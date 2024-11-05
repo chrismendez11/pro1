@@ -407,16 +407,17 @@ export class ReservationsService {
         getReservationsReportDto,
       );
 
-    const { reportType } = getReservationsReportDto;
+    const reportType = getReservationsReportDto.reportType || ReportType.EXCEL; // Default report type
 
     const reportDto: ReportDto = {
-      reportType: reportType || ReportType.EXCEL, // Default report type
+      reportType,
       reservationsRepository,
       companyCurrency,
     };
 
     switch (reportType) {
-      case ReportType.EXCEL || ReportType.CSV:
+      case ReportType.EXCEL:
+      case ReportType.CSV:
         const report = new ReportContext(new ExcelCsvReportStrategy());
         return report.generateReport(reportDto);
       default:
