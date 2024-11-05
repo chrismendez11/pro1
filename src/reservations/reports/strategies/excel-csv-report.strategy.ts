@@ -4,14 +4,16 @@ import { ReportStrategy } from '../interfaces/report-strategy.interface';
 import * as ExcelJS from 'exceljs';
 import * as mime from 'mime-types';
 import { getTimeFromDateTime } from 'src/shared/utils/get-time-from-date-time.util';
+import { ReportType } from 'src/reservations/enums/report-types.enum';
+import { BadRequestException } from '@nestjs/common';
 
-export class ExcelReportStrategy implements ReportStrategy {
+export class ExcelCsvReportStrategy implements ReportStrategy {
   async generateReport(reportDto: ReportDto): Promise<{
     contentType: string;
     filename: string;
     data: Buffer;
   }> {
-    const { reservationsRepository, companyCurrency } = reportDto;
+    const { reservationsRepository, companyCurrency, reportType } = reportDto;
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Reservaciones');
@@ -107,8 +109,20 @@ export class ExcelReportStrategy implements ReportStrategy {
 
     worksheet.addRows(reservations);
 
-    const buffer = await workbook.xlsx.writeBuffer();
-    const fileExtension = '.xlsx';
+    let buffer: ExcelJS.Buffer;
+    let fileExtension: '.xlsx' | '.csv';
+    switch (reportType) {
+      case ReportType.EXCEL:
+        buffer = await workbook.xlsx.writeBuffer();
+        fileExtension = '.xlsx';
+        break;
+      case ReportType.CSV:
+        buffer = await workbook.csv.writeBuffer();
+        fileExtension = '.csv';
+        break;
+      default:
+        throw new BadRequestException('Tipo de reporte inválido');
+    }
 
     return {
       contentType: mime.contentType(fileExtension) as string,

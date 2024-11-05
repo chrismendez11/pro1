@@ -1,6 +1,7 @@
 import { Decimal } from '@prisma/client/runtime/library';
 
 export class ReportDto {
+  reportType?: string;
   reservationsRepository: {
     reservationId: string;
     reservationHolderName: string;

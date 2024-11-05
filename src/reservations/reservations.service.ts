@@ -22,7 +22,7 @@ import { User } from 'src/shared/interfaces/user.interface';
 import { CourtStatusConstants } from 'src/courts/constants/court-status.constants';
 import { ReportType } from 'src/reservations/enums/report-types.enum';
 import { ReportContext } from './reports/report.context';
-import { ExcelReportStrategy } from './reports/strategies/excel-report.strategy';
+import { ExcelCsvReportStrategy } from './reports/strategies/excel-csv-report.strategy';
 import { ReportDto } from './reports/dtos';
 
 @Injectable()
@@ -407,16 +407,17 @@ export class ReservationsService {
         getReservationsReportDto,
       );
 
+    const { reportType } = getReservationsReportDto;
+
     const reportDto: ReportDto = {
+      reportType: reportType || ReportType.EXCEL, // Default report type
       reservationsRepository,
       companyCurrency,
     };
 
-    const { reportType } = getReservationsReportDto;
-
     switch (reportType) {
-      case ReportType.EXCEL:
-        const report = new ReportContext(new ExcelReportStrategy());
+      case ReportType.EXCEL || ReportType.CSV:
+        const report = new ReportContext(new ExcelCsvReportStrategy());
         return report.generateReport(reportDto);
       default:
         throw new BadRequestException('Tipo de reporte inválido');
