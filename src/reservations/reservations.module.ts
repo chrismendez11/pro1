@@ -8,5 +8,6 @@ import { CompaniesModule } from 'src/companies/companies.module';
   imports: [CompaniesModule],
   controllers: [ReservationsController],
   providers: [ReservationsService, ReservationsRepository],
+  exports: [ReservationsService],
 })
 export class ReservationsModule {}

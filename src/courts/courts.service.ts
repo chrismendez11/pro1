@@ -22,6 +22,8 @@ import { User } from 'src/shared/interfaces/user.interface';
 import { getDayOfTheWeek } from 'src/shared/utils/get-day-of-the-week.util';
 import { getTimeFromDateTime } from 'src/shared/utils/get-time-from-date-time.util';
 import { CompaniesService } from 'src/companies/companies.service';
+import { ReservationsService } from 'src/reservations/reservations.service';
+import { ReservationStatusConstants } from 'src/reservations/constants/reservation-status.constant';
 
 @Injectable()
 export class CourtsService implements OnModuleInit {
@@ -29,6 +31,7 @@ export class CourtsService implements OnModuleInit {
     private readonly courtsRepository: CourtsRepository,
     private readonly branchesService: BranchesService,
     private readonly companiesService: CompaniesService,
+    private readonly reservationsService: ReservationsService,
   ) {}
 
   onModuleInit() {
@@ -274,7 +277,20 @@ export class CourtsService implements OnModuleInit {
       throw new BadRequestException('Estado de cancha inválido.');
     }
 
-    // To-do: Validate if there is a reservation for the court that is ongoing
+    if (courtStatusId === CourtStatusConstants.IN_MAINTENANCE) {
+      // Validating if there is a reservation for the court that is in progress right now
+      const isCourtInUse =
+        await this.reservationsService.getReservationByCourtAndStatus(
+          courtId,
+          ReservationStatusConstants.IN_PROGRESS,
+        );
+
+      if (isCourtInUse) {
+        throw new ConflictException(
+          'No es posible colocar la cancha en mantenimiento ya que hay una reservación en curso.',
+        );
+      }
+    }
 
     await this.courtsRepository.updateCourtStatus(courtId, courtStatusId);
 

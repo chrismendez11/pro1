@@ -270,4 +270,13 @@ export class ReservationsRepository {
       },
     });
   }
+
+  getReservationByCourtAndStatus(courtId: string, reservationStatusId: string) {
+    return this.prismaService.reservation.findFirst({
+      where: {
+        courtId,
+        reservationStatusId,
+      },
+    });
+  }
 }

@@ -424,4 +424,14 @@ export class ReservationsService {
         throw new BadRequestException('Tipo de reporte inválido');
     }
   }
+
+  async getReservationByCourtAndStatus(
+    courtId: string,
+    reservationStatusId: string,
+  ) {
+    return this.reservationsRepository.getReservationByCourtAndStatus(
+      courtId,
+      reservationStatusId,
+    );
+  }
 }
