@@ -274,6 +274,8 @@ export class CourtsService implements OnModuleInit {
       throw new BadRequestException('Estado de cancha inválido.');
     }
 
+    // To-do: Validate if there is a reservation for the court that is ongoing
+
     await this.courtsRepository.updateCourtStatus(courtId, courtStatusId);
 
     return {

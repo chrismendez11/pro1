@@ -1,12 +1,13 @@
 import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
 
-dayjs.extend(utc);
 dayjs.extend(timezone);
-export function getCurrentDateTime(
+export function getCurrentDateTime({
+  utc = false,
   timezone = 'America/Guatemala',
   format = 'DD/MM/YYYY HH:mm:ss',
-): string {
-  return dayjs().tz(timezone).format(format);
+}): string {
+  return utc
+    ? dayjs().utc().format(format)
+    : dayjs().tz(timezone).format(format);
 }
