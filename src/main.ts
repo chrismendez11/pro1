@@ -7,6 +7,7 @@ import {
 } from './shared/exception-filters/prisma/prisma-exception.filter';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,7 +26,7 @@ async function bootstrap() {
     }),
   );
 
-  const logger = app.get(WINSTON_MODULE_PROVIDER);
+  const logger: Logger = app.get(WINSTON_MODULE_PROVIDER);
 
   app.useGlobalFilters(
     new PrismaClientKnownRequestErrorFilter(logger),
