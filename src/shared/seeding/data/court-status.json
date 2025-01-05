@@ -1,0 +1,14 @@
+[
+	{
+		"courtStatusId" : "df1d126e-d0c4-45d7-ae4e-455253870f49",
+		"courtStatusName" : "Disponible"
+	},
+	{
+		"courtStatusId" : "2d82b03c-1c2e-4609-84d2-65947f5c1833",
+		"courtStatusName" : "En Mantenimiento \/ Inhabilitada"
+	},
+	{
+		"courtStatusId" : "65e96386-c1ce-4c60-925b-e42b6920e6d5",
+		"courtStatusName" : "Ocupada"
+	}
+]

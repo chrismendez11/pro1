@@ -1,0 +1,14 @@
+[
+	{
+		"sportCategoryId" : "fd3cc884-6ccb-4b6b-b7cc-67e003e5876b",
+		"sportCategoryName" : "Basquetbol"
+	},
+	{
+		"sportCategoryId" : "19f1ed84-65d5-4bae-bb70-52a07e21f98b",
+		"sportCategoryName" : "Fútbol"
+	},
+	{
+		"sportCategoryId" : "49f27e7f-c034-496d-8b5c-432e58ed2e41",
+		"sportCategoryName" : "Tenis"
+	}
+]

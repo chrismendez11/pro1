@@ -1,5 +1,5 @@
 import { CloudWatchLogs } from '@aws-sdk/client-cloudwatch-logs';
-import * as WinstonCloudwatch from 'winston-cloudwatch';
+import WinstonCloudwatch from 'winston-cloudwatch';
 
 const client = new CloudWatchLogs({
   region: process.env.AWS_REGION,

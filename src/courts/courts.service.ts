@@ -15,9 +15,9 @@ import {
 } from './dtos/index.dto';
 import { CourtStatusConstants } from './constants/court-status.constants';
 import { BranchesService } from 'src/branches/branches.service';
-import * as dayjs from 'dayjs';
-import * as isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import * as isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import dayjs from 'dayjs';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { User } from 'src/shared/interfaces/user.interface';
 import { getDayOfTheWeek } from 'src/shared/utils/get-day-of-the-week.util';
 import { getTimeFromDateTime } from 'src/shared/utils/get-time-from-date-time.util';

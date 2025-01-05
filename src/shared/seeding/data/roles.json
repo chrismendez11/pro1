@@ -1,0 +1,10 @@
+[
+    {
+        "roleId": "f86944ca-c584-40c7-be04-8868fb8a479d",
+        "roleName": "Admin"
+    },
+    {
+        "roleId": "76a8b32d-5a55-40a5-aef7-322f503977f2",
+        "roleName": "Usuario"
+    }
+]

@@ -1,0 +1,27 @@
+[
+	{
+		"sportCourtTypeId" : "3ba41890-54ed-43b2-951c-a418d28a3b22",
+		"sportCourtTypeName" : "Basquetbol",
+		"sportCategoryId" : "fd3cc884-6ccb-4b6b-b7cc-67e003e5876b"
+	},
+	{
+		"sportCourtTypeId" : "6edbaab7-59e2-4994-9e2b-68822356231b",
+		"sportCourtTypeName" : "Tenis",
+		"sportCategoryId" : "49f27e7f-c034-496d-8b5c-432e58ed2e41"
+	},
+	{
+		"sportCourtTypeId" : "a3d870f7-fb8e-4f8f-bc5e-13750b7db390",
+		"sportCourtTypeName" : "Fútbol 11",
+		"sportCategoryId" : "19f1ed84-65d5-4bae-bb70-52a07e21f98b"
+	},
+	{
+		"sportCourtTypeId" : "ed96a5e6-edb1-4613-89fd-f13c2b8878ff",
+		"sportCourtTypeName" : "Fútbol 5",
+		"sportCategoryId" : "19f1ed84-65d5-4bae-bb70-52a07e21f98b"
+	},
+	{
+		"sportCourtTypeId" : "fd5a1f10-1e46-4908-9e51-4e64d819e25a",
+		"sportCourtTypeName" : "Fútbol 7",
+		"sportCategoryId" : "19f1ed84-65d5-4bae-bb70-52a07e21f98b"
+	}
+]
