@@ -28,6 +28,10 @@ RUN pnpm install --prod
 
 COPY --from=builder /app/dist ./dist
 
+COPY prisma/schema.prisma ./prisma/
+
+RUN pnpm prisma generate
+
 EXPOSE 3000
 
 CMD ["node", "dist/main.js"]

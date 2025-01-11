@@ -1,3 +1,4 @@
+import * as dotenv from 'dotenv';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
@@ -9,6 +10,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 
+dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
