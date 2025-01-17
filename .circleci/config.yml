@@ -7,14 +7,24 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Build Docker Image"
-          command: "docker build -t pro1 ."
+          name: 'Build Docker Image'
+          command: 'docker build -t pro1 .'
       - run:
-          name: "Save Docker Image"
-          command: "docker save pro1 > pro1.tar"
+          name: 'Save Docker Image'
+          command: 'docker save pro1 > pro1.tar'
       - run:
-          name: "Run Docker Container"
-          command: "docker run pro1"
+          name: 'Run Docker Container'
+          command: |
+            docker run -d -e DATABASE_URL=${DATABASE_URL} -p 3000:3000 pro1
+            for i in {1..30}; do
+              if curl -s http://localhost:3000/health; then
+                echo "App is up and running"
+                break
+              fi
+              echo "Waiting for app to start..."
+              sleep 5
+            done
+            docker stop $(docker ps -q)
       - persist_to_workspace:
           root: .
           paths:
@@ -25,28 +35,34 @@ jobs:
       enabled: true
     steps:
       - attach_workspace:
-          at: /workspace
+          at: /tmp/workspace
       - run:
-          name: "Load Docker Image"
-          command: "docker load < /workspace/pro1.tar"
+          name: 'Load Docker Image'
+          command: 'docker load < /tmp/workspace/pro1.tar'
       - run:
-          name: "Install AWS CLI"
+          name: 'Install AWS CLI'
           command: |
             sudo apt-get update
             sudo apt-get install -y awscli
       - run:
-          name: "Login to AWS ECR"
+          name: 'Configure AWS CLI'
+          command: |
+            aws configure set aws_access_key_id $AWS_ACCESS_KEY
+            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+            aws configure set default.region us-east-2
+      - run:
+          name: 'Login to AWS ECR'
           command: |
             aws ecr get-login-password --region us-east-2 | \
             docker login --username AWS --password-stdin 058264403259.dkr.ecr.us-east-2.amazonaws.com
       - run:
-          name: "Tag Docker Image"
+          name: 'Tag Docker Image'
           command: |
-            docker tag pro1:latest 058264403259.dkr.ecr.us-east-2.amazonaws.com/pro1:latest
+            docker tag pro1:latest 058264403259.dkr.ecr.us-east-2.amazonaws.com/pro-1:latest
       - run:
-          name: "Push Docker Image"
+          name: 'Push Docker Image'
           command: |
-            docker push 058264403259.dkr.ecr.us-east-2.amazonaws.com/pro1:latest
+            docker push 058264403259.dkr.ecr.us-east-2.amazonaws.com/pro-1:latest
 
 workflows:
   build-and-deploy:
@@ -58,4 +74,4 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
