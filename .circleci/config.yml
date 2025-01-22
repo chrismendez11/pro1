@@ -95,3 +95,10 @@ workflows:
             branches:
               only:
                 - main
+      - deploy-service:
+          requires:
+            - deploy-image
+          filters:
+            branches:
+              only:
+                - main
