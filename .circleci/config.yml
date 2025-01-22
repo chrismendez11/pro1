@@ -64,6 +64,26 @@ jobs:
           command: |
             docker push 058264403259.dkr.ecr.us-east-2.amazonaws.com/pro-1:latest
 
+  deploy-service:
+    machine:
+      enabled: true
+    steps:
+      - run:
+          name: 'Install AWS CLI'
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y awscli
+      - run:
+          name: 'Configure AWS CLI'
+          command: |
+            aws configure set aws_access_key_id $AWS_ACCESS_KEY
+            aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+            aws configure set default.region us-east-2
+      - run:
+          name: 'Deploy Service'
+          command: |
+            aws ecs update-service --cluster $CLUSTER --service $SERVICE --force-new-deployment
+
 workflows:
   build-and-deploy:
     jobs:
