@@ -41,7 +41,7 @@ jobs:
           command: 'docker load < /tmp/workspace/pro1.tar'
       - run:
           name: 'Run Migrations and Seeding'
-          command: 'docker run --rm -v "$(pwd):/app" -w /app pro1 pnpm prisma migrate deploy && pnpm prisma db seed'
+          command: 'docker run --rm -e DATABASE_URL=${DATABASE_URL} -w /app --entrypoint "" pro1 pnpm prisma:deploy'
 
   deploy-image:
     machine:

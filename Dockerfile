@@ -8,7 +8,7 @@ COPY package.json pnpm-lock.yaml ./
 
 RUN pnpm install
 
-COPY prisma/schema.prisma ./prisma/
+COPY prisma ./prisma/
 
 RUN pnpm prisma generate
 
@@ -28,7 +28,7 @@ RUN pnpm install --prod
 
 COPY --from=builder /app/dist ./dist
 
-COPY prisma/schema.prisma ./prisma/
+COPY prisma ./prisma/
 
 RUN pnpm prisma generate
 
