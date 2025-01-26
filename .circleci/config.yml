@@ -30,6 +30,19 @@ jobs:
           paths:
             - pro1.tar
 
+  deploy-database:
+    machine:
+      enabled: true
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: 'Load Docker Image'
+          command: 'docker load < /tmp/workspace/pro1.tar'
+      - run:
+          name: 'Run Migrations and Seeding'
+          command: 'docker run --rm -v "$(pwd):/app" -w /app pro1 pnpm prisma migrate deploy && pnpm prisma db seed'
+
   deploy-image:
     machine:
       enabled: true
@@ -88,9 +101,16 @@ workflows:
   build-and-deploy:
     jobs:
       - build
-      - deploy-image:
+      - deploy-database:
           requires:
             - build
+          filters:
+            branches:
+              only:
+                - main
+      - deploy-image:
+          requires:
+            - deploy-database
           filters:
             branches:
               only:
